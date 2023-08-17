@@ -1,0 +1,27 @@
+syntax = "proto3"; 
+
+option go_package = "./tasks";
+
+message Tasks {
+    int32 Id = 1;
+    string Title = 2; 
+    string Description = 3; 
+    bool Completed = 4; 
+}
+
+message TaskRequest {
+    int32 Id = 1; 
+    bool  Completed = 2; 
+}
+
+message TaskResponse {
+    bool Ok = 1; 
+}
+
+service TaskService {
+    rpc AddTask(Tasks) returns (Empty); 
+    rpc MarkTaskAsCompleted(TaskRequest) returns (TaskResponse);
+    rpc listTaks(Empty) returns (stream Tasks);
+}
+
+message Empty{}
