@@ -28,7 +28,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TaskServiceClient interface {
-	AddTask(ctx context.Context, in *Tasks, opts ...grpc.CallOption) (*Empty, error)
+	AddTask(ctx context.Context, in *Tasks, opts ...grpc.CallOption) (*TaskResponse, error)
 	MarkTaskAsCompleted(ctx context.Context, in *TaskRequest, opts ...grpc.CallOption) (*TaskResponse, error)
 	ListTaks(ctx context.Context, in *Empty, opts ...grpc.CallOption) (TaskService_ListTaksClient, error)
 }
@@ -41,8 +41,8 @@ func NewTaskServiceClient(cc grpc.ClientConnInterface) TaskServiceClient {
 	return &taskServiceClient{cc}
 }
 
-func (c *taskServiceClient) AddTask(ctx context.Context, in *Tasks, opts ...grpc.CallOption) (*Empty, error) {
-	out := new(Empty)
+func (c *taskServiceClient) AddTask(ctx context.Context, in *Tasks, opts ...grpc.CallOption) (*TaskResponse, error) {
+	out := new(TaskResponse)
 	err := c.cc.Invoke(ctx, TaskService_AddTask_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -95,31 +95,29 @@ func (x *taskServiceListTaksClient) Recv() (*Tasks, error) {
 // All implementations must embed UnimplementedTaskServiceServer
 // for forward compatibility
 type TaskServiceServer interface {
-	AddTask(context.Context, *Tasks) (*Empty, error)
+	AddTask(context.Context, *Tasks) (*TaskResponse, error)
 	MarkTaskAsCompleted(context.Context, *TaskRequest) (*TaskResponse, error)
-	ListTaks(context.Context, *Empty) error
+	ListTaks(*Empty, TaskService_ListTaksServer) error
 }
 
 // UnimplementedTaskServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedTaskServiceServer struct {
 }
 
-func (UnimplementedTaskServiceServer) AddTask(context.Context, *Tasks) (*Empty, error) {
+func (UnimplementedTaskServiceServer) AddTask(context.Context, *Tasks) (*TaskResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddTask not implemented")
 }
 func (UnimplementedTaskServiceServer) MarkTaskAsCompleted(context.Context, *TaskRequest) (*TaskResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MarkTaskAsCompleted not implemented")
 }
-func (UnimplementedTaskServiceServer) ListTaks(context.Context, *Empty) error {
+func (UnimplementedTaskServiceServer) ListTaks(*Empty, TaskService_ListTaksServer) error {
 	return status.Errorf(codes.Unimplemented, "method ListTaks not implemented")
 }
-func (UnimplementedTaskServiceServer) mustEmbedUnimplementedTaskServiceServer() {}
 
 // UnsafeTaskServiceServer may be embedded to opt out of forward compatibility for this service.
 // Use of this interface is not recommended, as added methods to TaskServiceServer will
 // result in compilation errors.
 type UnsafeTaskServiceServer interface {
-	mustEmbedUnimplementedTaskServiceServer()
 }
 
 func RegisterTaskServiceServer(s grpc.ServiceRegistrar, srv TaskServiceServer) {
@@ -162,13 +160,13 @@ func _TaskService_MarkTaskAsCompleted_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
-//func _TaskService_ListTaks_Handler(srv interface{}, stream grpc.ServerStream) error {
-//	m := new(Empty)
-//	if err := stream.RecvMsg(m); err != nil {
-//		return err
-//	}
-	//return srv.(TaskServiceServer).ListTaks(m, &taskServiceListTaksServer{stream})
-//}
+func _TaskService_ListTaks_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(Empty)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(TaskServiceServer).ListTaks(m, &taskServiceListTaksServer{stream})
+}
 
 type TaskService_ListTaksServer interface {
 	Send(*Tasks) error
@@ -199,12 +197,12 @@ var TaskService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _TaskService_MarkTaskAsCompleted_Handler,
 		},
 	},
-	//Streams: []grpc.StreamDesc{
-	//	{
-	//		StreamName:    "listTaks",
-	//		Handler:       _TaskService_ListTaks_Handler,
-	//		ServerStreams: true,
-	//	},
-	//},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "listTaks",
+			Handler:       _TaskService_ListTaks_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "tasks.proto",
 }
