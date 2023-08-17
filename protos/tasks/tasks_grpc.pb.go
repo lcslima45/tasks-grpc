@@ -97,8 +97,7 @@ func (x *taskServiceListTaksClient) Recv() (*Tasks, error) {
 type TaskServiceServer interface {
 	AddTask(context.Context, *Tasks) (*Empty, error)
 	MarkTaskAsCompleted(context.Context, *TaskRequest) (*TaskResponse, error)
-	ListTaks(*Empty, TaskService_ListTaksServer) error
-	mustEmbedUnimplementedTaskServiceServer()
+	ListTaks(context.Context, *Empty) error
 }
 
 // UnimplementedTaskServiceServer must be embedded to have forward compatible implementations.
@@ -111,7 +110,7 @@ func (UnimplementedTaskServiceServer) AddTask(context.Context, *Tasks) (*Empty, 
 func (UnimplementedTaskServiceServer) MarkTaskAsCompleted(context.Context, *TaskRequest) (*TaskResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MarkTaskAsCompleted not implemented")
 }
-func (UnimplementedTaskServiceServer) ListTaks(*Empty, TaskService_ListTaksServer) error {
+func (UnimplementedTaskServiceServer) ListTaks(context.Context, *Empty) error {
 	return status.Errorf(codes.Unimplemented, "method ListTaks not implemented")
 }
 func (UnimplementedTaskServiceServer) mustEmbedUnimplementedTaskServiceServer() {}
@@ -163,13 +162,13 @@ func _TaskService_MarkTaskAsCompleted_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TaskService_ListTaks_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(Empty)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
-	}
-	return srv.(TaskServiceServer).ListTaks(m, &taskServiceListTaksServer{stream})
-}
+//func _TaskService_ListTaks_Handler(srv interface{}, stream grpc.ServerStream) error {
+//	m := new(Empty)
+//	if err := stream.RecvMsg(m); err != nil {
+//		return err
+//	}
+	//return srv.(TaskServiceServer).ListTaks(m, &taskServiceListTaksServer{stream})
+//}
 
 type TaskService_ListTaksServer interface {
 	Send(*Tasks) error
@@ -200,12 +199,12 @@ var TaskService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _TaskService_MarkTaskAsCompleted_Handler,
 		},
 	},
-	Streams: []grpc.StreamDesc{
-		{
-			StreamName:    "listTaks",
-			Handler:       _TaskService_ListTaks_Handler,
-			ServerStreams: true,
-		},
-	},
+	//Streams: []grpc.StreamDesc{
+	//	{
+	//		StreamName:    "listTaks",
+	//		Handler:       _TaskService_ListTaks_Handler,
+	//		ServerStreams: true,
+	//	},
+	//},
 	Metadata: "tasks.proto",
 }

@@ -1,6 +1,6 @@
 syntax = "proto3"; 
 
-option go_package = "./tasks";
+option go_package = "/tasks";
 
 message Tasks {
     int32 Id = 1;
