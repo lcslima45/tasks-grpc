@@ -1,0 +1,6 @@
+FROM mysql:latest 
+
+ENV MYSQL_ROOT_PASSWORD=root 
+ENV MYSQL_DATABASE = tasks_manager
+ENV MYSQL_USER = admin
+ENV MY_PASSWORD = admin

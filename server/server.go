@@ -2,46 +2,60 @@ package server
 
 import (
 	"context"
-	"fmt"
+	"log"
+
+	models "github.com/lcslima45/tasks-grpc/models"
 
 	tasks "github.com/lcslima45/tasks-grpc/protos/tasks"
+	repository "github.com/lcslima45/tasks-grpc/repository"
 )
 
 type TaskServer struct {
-	tasksMap map[int32]*tasks.Tasks
+	taskRepository repository.TaskRepository
+	//tasksMap map[int32]*tasks.Tasks
 }
 
-func NewTasksServer() *TaskServer {
-	mapa := make(map[int32]*tasks.Tasks)
+func NewTasksServer(repo repository.TaskRepository) *TaskServer {
 	return &TaskServer{
-		tasksMap: mapa,
+		taskRepository: repo,
 	}
 }
 
 func (t *TaskServer) AddTask(ctx context.Context, task *tasks.Tasks) (*tasks.TaskResponse, error) {
-	if _, existentValue := t.tasksMap[task.Id]; !existentValue {
-		t.tasksMap[task.Id] = task
-		return &tasks.TaskResponse{Ok: false}, nil
+	ok, err := t.taskRepository.AddNewTask(ctx, task.Id, task.Title, task.Description, task.Completed)
+	if ok {
+		return &tasks.TaskResponse{Ok: true}, nil
 	}
-	err := fmt.Errorf("the id=%d already exists in the database", task.Id)
 	return &tasks.TaskResponse{Ok: false}, err
 }
 
 func (t *TaskServer) MarkTaskAsCompleted(ctx context.Context, taskRequest *tasks.TaskRequest) (*tasks.TaskResponse, error) {
-	if _, existentValue := t.tasksMap[taskRequest.Id]; existentValue {
-		t.tasksMap[taskRequest.Id].Completed = true
+	ok, err := t.taskRepository.MarkTaskAsCompleted(ctx, taskRequest.Id, taskRequest.Completed)
+	if ok {
 		return &tasks.TaskResponse{Ok: true}, nil
 	}
-	err := fmt.Errorf("the id=%d does not exist in the database", taskRequest.Id)
-	return &tasks.TaskResponse{}, err
+	return &tasks.TaskResponse{Ok: false}, err
 }
 
 func (t *TaskServer) ListTaks(empty *tasks.Empty, stream tasks.TaskService_ListTaksServer) error {
-	// Implemente a lógica para listar as tarefas e enviar pelo stream
-	for _, task := range t.tasksMap {
-		if err := stream.Send(task); err != nil {
+	tasksToList, err := t.taskRepository.ListTasks()
+	log.Println(tasksToList)
+
+	for _, taskFromDB := range tasksToList {
+		taskToGRPC := t.transformTableIntoGRPCTask(taskFromDB)
+		if err := stream.Send(taskToGRPC); err != nil {
 			return err
 		}
 	}
-	return nil
+	return err
+}
+
+func (t *TaskServer) transformTableIntoGRPCTask(taskFromDB models.TaskModel) *tasks.Tasks {
+	taskToGRPC := &tasks.Tasks{
+		Id:          taskFromDB.NumTask,
+		Title:       taskFromDB.Title,
+		Description: taskFromDB.Description,
+		Completed:   taskFromDB.Completed,
+	}
+	return taskToGRPC
 }

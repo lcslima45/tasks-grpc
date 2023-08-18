@@ -1,0 +1,22 @@
+version: '3'
+services:
+  mysql:
+    build:
+      context: .
+      dockerfile: dockerfile.mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: tasks_manager
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+      TZ: "UTC"
+    volumes:
+      - mysql_data:/var/lib/mysql
+volumes:
+  mysql_data:
+
+
+
+
