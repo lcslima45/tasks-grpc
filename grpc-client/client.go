@@ -30,8 +30,8 @@ func main() {
 	}
 	task2 := &tasks.Tasks{
 		Id:          4,
-		Title:       "Tarefa 3",
-		Description: "Descrição da tarefa 3",
+		Title:       "Tarefa 4",
+		Description: "Descrição da tarefa 4",
 	}
 	response, err = client.AddTask(context.Background(), task2)
 	if err != nil {
@@ -79,4 +79,10 @@ func main() {
 		}
 	}
 
+	response, err = client.DeleteTask(context.Background(), &tasks.TaskDeleter{Id: 4})
+	if err != nil {
+		log.Fatalf("Error on deleting")
+	} else {
+		log.Println("Response Ok:", response.Ok)
+	}
 }

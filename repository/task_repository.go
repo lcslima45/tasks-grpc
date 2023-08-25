@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/lcslima45/tasks-grpc/models"
 	"gorm.io/gorm"
@@ -55,4 +56,14 @@ func (repo *taskRepository) ListTasks() ([]models.TaskModel, error) {
 		return nil, err
 	}
 	return tasks, nil
+}
+
+func (repo *taskRepository) DeleteTask(ctx context.Context, id int32) (bool, error) {
+	result := repo.db.Delete(&models.TaskModel{}, id)
+	if result.Error != nil {
+		err := fmt.Errorf("error on deleting: %v", result.Error)
+		return false, err
+	}
+
+	return true, nil
 }

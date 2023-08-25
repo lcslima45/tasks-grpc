@@ -9,6 +9,10 @@ message Tasks {
     bool Completed = 4; 
 }
 
+message TaskDeleter {
+    int32 Id = 1;
+}
+
 message TaskRequest {
     int32 Id = 1; 
     bool  Completed = 2; 
@@ -22,6 +26,7 @@ service TaskService {
     rpc AddTask(Tasks) returns (TaskResponse); 
     rpc MarkTaskAsCompleted(TaskRequest) returns (TaskResponse);
     rpc listTaks(Empty) returns (stream Tasks);
+    rpc DeleteTask(TaskDeleter) returns (TaskResponse); 
 }
 
 message Empty{}

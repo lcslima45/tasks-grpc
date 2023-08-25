@@ -59,3 +59,14 @@ func (t *TaskServer) transformTableIntoGRPCTask(taskFromDB models.TaskModel) *ta
 	}
 	return taskToGRPC
 }
+
+func (t *TaskServer) DeleteTask(ctx context.Context, taskToDelete *tasks.TaskDeleter) (*tasks.TaskResponse, error) {
+	ok, err := t.taskRepository.DeleteTask(ctx, taskToDelete.Id)
+
+	if err != nil {
+		log.Println("Error :", err)
+		return &tasks.TaskResponse{Ok: ok}, err
+	}
+
+	return &tasks.TaskResponse{Ok: ok}, err
+}

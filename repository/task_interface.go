@@ -10,4 +10,5 @@ type TaskRepository interface {
 	AddNewTask(ctx context.Context, id int32, title string, description string, completed bool) (bool, error)
 	MarkTaskAsCompleted(ctx context.Context, id int32, completed bool) (bool, error)
 	ListTasks() ([]models.TaskModel, error)
+	DeleteTask(ctx context.Context, id int32) (bool, error)
 }
