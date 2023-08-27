@@ -27,10 +27,9 @@ func (repo *taskRepository) AddNewTask(ctx context.Context, id int32, title stri
 	}
 
 	result := repo.db.Create(newTask)
-	if result.Error != nil {
+	if result.Error == nil {
 		return true, nil
 	}
-
 	return false, result.Error
 }
 
