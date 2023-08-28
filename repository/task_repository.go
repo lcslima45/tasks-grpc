@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/lcslima45/tasks-grpc/models"
 	"gorm.io/gorm"
@@ -30,6 +31,7 @@ func (repo *taskRepository) AddNewTask(ctx context.Context, id int32, title stri
 	if result.Error == nil {
 		return true, nil
 	}
+	log.Println("Error:", result.Error)
 	return false, result.Error
 }
 
